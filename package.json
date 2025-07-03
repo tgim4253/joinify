@@ -8,11 +8,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "start:backend": "cd backend && npm start",
-    "start:frontend": "cd frontend && npm start",
-    "install:backend": "cd backend && npm install",
-    "install:frontend": "cd frontend && npm install",
-    "postinstall": "npm run install:backend && npm run install:frontend"
+    "start": "node index.js",
+    "postinstall": ""
   },
   "keywords": [],
   "author": "tgim4253",
