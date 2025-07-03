@@ -1,15 +1,20 @@
 {
   "name": "joinify",
   "version": "1.0.0",
-  "description": "",
+  "description": "A project with backend and frontend.",
   "main": "index.js",
+  "private": true,
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "postinstall": "npm run install:backend && npm run install:frontend"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "tgim4253",
+  "license": "MIT"
 }
