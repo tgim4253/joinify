@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:                         # PostgreSQL 데이터베이스 컨테이너
+    image: postgres:16-alpine # 공식 경량 이미지 사용
+    restart: unless-stopped   # 예기치 않은 종료 시 항상 재기동, 수동 중지는 존중
+    environment:              # DB 사용자/비밀번호/DB명 주입
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+      POSTGRES_DB: ${DB_NAME:-joinify}
+    volumes:
+      - db_data:/var/lib/postgresql/data  # 호스트 볼륨에 데이터 영구 저장
+    networks: [internal]      # 동일 브리지 네트워크에 연결
+    healthcheck:              # DB 준비 완료 판별
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:                    # API 서버
+    build:
+      context: ./backend      # ./backend Dockerfile 사용
+      target: production      # multi-stage Dockerfile 내 production 스테이지
+    restart: unless-stopped
+    environment:              # 프레임워크에서 개별 변수로도 쓸 수 있게 원본 값 그대로 전달
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASS: ${DB_PASS:-postgres}
+      DB_NAME: ${DB_NAME:-joinify}
+      PORT: 4000
+      # 전체 연결 문자열—빈 문자열 방지 위해 기본값 지정
+      DATABASE_URL: "postgres://${DB_USER:-postgres}:${DB_PASS:-postgres}@db:5432/${DB_NAME:-joinify}"
+    depends_on:               # db가 “healthy” 상태가 될 때까지 대기
+      db:
+        condition: service_healthy
+    networks: [internal]
+    # ports: ["4000:4000"]    # 로컬에서 직접 접근이 필요하면 주석 해제
+
+  frontend:                   # 정적 파일을 서빙하는 Nginx, React 빌드 결과
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"               # 호스트 80 → 컨테이너 80
+    networks: [internal]
+
+volumes:
+  db_data:                    # PostgreSQL 데이터가 사라지지 않도록 정의
+
+networks:
+  internal:
+    driver: bridge            # 기본 브리지. 외부에 노출되지 않음
