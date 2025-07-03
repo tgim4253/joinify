@@ -1,0 +1,94 @@
+// schema.prisma  ─────────────────────────────────────────
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// admin / operator accounts
+model User {
+  id           BigInt   @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         Role
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  logs Log[] // 1-n
+
+  @@map("users")
+}
+
+/// yearly homecoming, etc.
+model Event {
+  id             BigInt    @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  description    String?
+  location       String?   @db.VarChar(255)
+  startAt        DateTime? @map("start_at")
+  endAt          DateTime? @map("end_at")
+  contactName    String?   @map("contact_name") @db.VarChar(100)
+  contactPhone   String?   @map("contact_phone") @db.VarChar(50)
+  bannerImageUrl String?   @map("banner_image_url")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  fields  EventField[]
+  members Member[]
+
+  @@map("events")
+}
+
+/// custom columns per event
+model EventField {
+  id           BigInt  @id @default(autoincrement())
+  eventId      BigInt
+  fieldKey     String  @db.VarChar(100)
+  displayName  String  @db.VarChar(100)
+  dataType     String  @db.VarChar(20)
+  isSensitive  Boolean @default(false) @map("is_sensitive")
+  maskFrom     Int?    @map("mask_from")
+  maskTo       Int?    @map("mask_to")
+  isPublic     Boolean @default(true) @map("is_public")
+  enumOptions  Json?   @map("enum_options")
+  defaultValue String? @map("default_value")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, fieldKey]) // event 내 중복 방지
+  @@map("event_fields")
+}
+
+/// attendee roster (JSON-column-per-row 패턴)
+model Member {
+  id          BigInt   @id @default(autoincrement())
+  eventId     BigInt
+  data        Json
+  slackUserId String?  @map("slack_user_id") @db.VarChar(50)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId]) // 대시보드 조회 가속
+  @@map("members")
+}
+
+/// optional audit trail
+model Log {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  action    String   @db.VarChar(100)
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("logs")
+}
+
+/// enum for role column
+enum Role {
+  admin
+  viewer
+}
