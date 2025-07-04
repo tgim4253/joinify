@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
     "rootDir": "src",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node"],
   },
-  "include": ["src/**/*.ts"]
+  "include": ["./src/**/*.ts", "./src/types/**/*.d.ts"],
+  "ts-node": {
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "esm": true,
+  },
 }

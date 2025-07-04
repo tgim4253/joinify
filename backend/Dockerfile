@@ -1,5 +1,5 @@
 # ---------- base ----------
-FROM node:20-bookworm-slim AS base
+FROM node:24.0.2-slim AS base
 WORKDIR /app
 
 # Install runtime dependencies early for better layer caching
@@ -33,7 +33,7 @@ COPY src ./src
 RUN npm run build && npx prisma generate
 
 # ---------- production ----------
-FROM node:20-bookworm-slim AS prod
+FROM node:24.0.2-slim AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \

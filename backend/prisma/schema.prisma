@@ -25,6 +25,7 @@ model User {
 model Event {
   id             BigInt    @id @default(autoincrement())
   name           String    @db.VarChar(255)
+  isPublic       Boolean   @default(true) @map("is_public")
   description    String?
   location       String?   @db.VarChar(255)
   startAt        DateTime? @map("start_at")
