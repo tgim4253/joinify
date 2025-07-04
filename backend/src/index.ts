@@ -1,15 +1,20 @@
 // Express + Prisma basic server
 import express from "express";
+import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import authRouter from "./routes/auth"
+
+dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
 
-app.get("/healthz", (_, res) => res.send("OK"));
+app.use(cors());
+app.use(express.json()); // json형태의 요청 body를 파싱하는 미들웨어
 
-app.get("/users", async (_, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
+app.use("/api/auth", authRouter)
+app.get("/api/healthz", (_, res) => res.send("OK"));
 
-app.listen(4000, () => console.log("🚀 API listening on 4000"));
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`🚀 API listening on ${PORT}`));
