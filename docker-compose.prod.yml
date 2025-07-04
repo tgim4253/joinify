@@ -1,0 +1,26 @@
+# prod overrides – optimized images & secrets
+services:
+  backend:
+    build:
+      target: production
+    command: node dist/index.js
+    environment:
+      - NODE_ENV=production
+
+  frontend:
+    build:
+      target: production
+    depends_on: [backend]
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    secrets:
+      - jwt_secret
+
+secrets:
+  db_pass:
+    file: ./secrets/db_pass.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt

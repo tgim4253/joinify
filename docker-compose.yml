@@ -2,8 +2,10 @@ services:
   db:                         # PostgreSQL 데이터베이스 컨테이너
     image: postgres:16-alpine # 공식 경량 이미지 사용
     restart: unless-stopped   # 예기치 않은 종료 시 항상 재기동, 수동 중지는 존중
+    env_file: ${ENV_FILE:-.env.dev}
     environment:              # DB 사용자/비밀번호/DB명 주입
       POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD_FILE: ${DB_PASS_FILE:-}
       POSTGRES_PASSWORD: ${DB_PASS:-postgres}
       POSTGRES_DB: ${DB_NAME:-joinify}
     volumes:
@@ -14,33 +16,37 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "5432:5432"
 
   backend:                    # API 서버
     build:
       context: ./backend      # ./backend Dockerfile 사용
-      target: production      # multi-stage Dockerfile 내 production 스테이지
     restart: unless-stopped
-    environment:              # 프레임워크에서 개별 변수로도 쓸 수 있게 원본 값 그대로 전달
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASS: ${DB_PASS:-postgres}
-      DB_NAME: ${DB_NAME:-joinify}
+    env_file: ${ENV_FILE:-.env.dev}
+    environment:
+      # Keep plaintext versions for libraries that expect them
+      DATABASE_URL: "postgres://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}"
       PORT: 4000
-      # 전체 연결 문자열—빈 문자열 방지 위해 기본값 지정
-      DATABASE_URL: "postgres://${DB_USER:-postgres}:${DB_PASS:-postgres}@db:5432/${DB_NAME:-joinify}"
-    depends_on:               # db가 “healthy” 상태가 될 때까지 대기
+    depends_on:
       db:
         condition: service_healthy
     networks: [internal]
-    # ports: ["4000:4000"]    # 로컬에서 직접 접근이 필요하면 주석 해제
 
   frontend:                   # 정적 파일을 서빙하는 Nginx, React 빌드 결과
     build:
       context: ./frontend
+    working_dir: /web
     restart: unless-stopped
-    ports:
-      - "80:80"               # 호스트 80 → 컨테이너 80
+    env_file: ${ENV_FILE:-.env.dev}
+    networks: [internal]
+    # dev 에서는 Nginx 없이 Vite dev 서버를 띄우므로 포트/command 는 override 에서
+
+  nginx:
+    build:
+      context: ./nginx
+    restart: unless-stopped
+    depends_on: [frontend, backend]
+    ports:             # prod 에서만 host 80/443 노출
+      - "80:80"
     networks: [internal]
 
 volumes:

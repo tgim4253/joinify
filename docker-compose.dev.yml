@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      target: dev                 # Dockerfile 단계
+    command: npm run dev
+    volumes:
+      - ./backend:/app
+    ports:
+      - "4000:4000"               # localhost:4000 → 컨테이너
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    command: npm run dev          # Vite dev server
+    build:
+      target: dev                 
+    volumes:
+      - ./frontend:/web
+      - /web/node_modules     # keep container-only node_module
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true   # → 폴링 활성
+      - CHOKIDAR_INTERVAL=100      # → 100 ms(원하면 조절)
+
+  db:
+    ports:
+      - "5432:5432"               # 로컬 DB 툴 접속
+
+  nginx:
+    profiles: ["no-nginx"]        # 필요 없으면 끔
