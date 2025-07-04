@@ -1,14 +1,23 @@
-# ---------- builder ----------
-FROM node:20-alpine AS builder
+# ---------- base ----------
+FROM node:24.0.2-slim AS base
 WORKDIR /web
-COPY package*.json .
-RUN npm ci
+
+COPY package.json package-lock.json ./
+RUN npm ci  # clean install
+
+# ---------- dev ----------
+FROM base AS dev
 COPY . .
-RUN npm run build               # vite build → dist/
+CMD ["npm", "run", "dev"]
+
+# ---------- builder ----------
+FROM base AS builder
+COPY . .
+RUN npm run build
 
 # ---------- runtime ----------
-FROM nginx:1.27-alpine         
-COPY --from=builder /web/dist /usr/share/nginx/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf  
+FROM nginx:1.27-alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
