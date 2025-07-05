@@ -54,6 +54,9 @@ model EventField {
   isPublic     Boolean @default(true) @map("is_public")
   enumOptions  Json?   @map("enum_options")
   defaultValue String? @map("default_value")
+  order        Int     @default(9999)
+  isMutable    Boolean @default(true) @map("is_mutable")
+  useForMatching Boolean @default(false) @map("use_for_matching")
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
