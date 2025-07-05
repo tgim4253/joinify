@@ -1,6 +1,8 @@
 import { useState, useContext } from "react";
 import type { FormEvent } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { authApi } from "../../api/auth";
 
 export default function Login() {
     // login 함수
@@ -11,25 +13,25 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || "/admin";
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const res = await fetch(import.meta.env.VITE_API_BASE as String + "/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password,
-            }),
-        });
+        try {
+            const body = { email, password };
+            const res = await authApi.login(body);
 
-        if (res.ok) {
-            const { token, user } = await res.json();
+            const { token, user } = res;
             login(user, token);
-        } else {
+
+            navigate(from, { replace: true });
+        } catch (err) {
             setError("Login failed");
         }
+
     };
 
 

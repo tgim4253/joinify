@@ -1,19 +1,12 @@
 import React, { createContext, useEffect, useState } from "react";
 
-interface User {
-    userId: string;
-    email: string;
-    role: "admin" | "viewr";
-}
-
-interface AuthContextType {
-    user: User | null
-    login: (u: User, t: string) => void;
-    logout: () => void;
-}
-
 // null!: null 허용
-export const AuthContext = createContext<AuthContextType>(null!);
+export const AuthContext = createContext<AuthContextType>({
+    user: null,
+    ready: false,
+    login: () => { },
+    logout: () => { },
+});
 
 /*
     AuthProvider: 여러 컴포넌트에서 사용자가 로그인 했는지 알고 싶음 
@@ -22,13 +15,18 @@ export const AuthContext = createContext<AuthContextType>(null!);
     <{ children: React.ReactNode }>: 컴포넌트가 받는 props의 타입을 지정
 */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const saved = localStorage.getItem("auth");
+        return saved ? JSON.parse(saved).user : null;
+    });
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         const saved = localStorage.getItem("auth");
         if (saved) {
             setUser(JSON.parse(saved).user);
         }
+        setReady(true);
     }, []);
 
     const login = (u: User, t: string) => {
@@ -42,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, ready, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
