@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import prisma from '../prisma.ts';
 import { logAction } from '../utils/logger.ts';
 import { serializeBigInt } from '../utils/serializeBigInt.ts';
-import { fetchEvent, fetchEvents } from '../services/eventService.ts';
+import { fetchEvent, fetchEvents, updateEventService } from '../services/eventService.ts';
 
 export async function getEventsAdmin(req: Request, res: Response, next: NextFunction) {
     try {
@@ -56,6 +56,17 @@ export async function getEventAdmin(req: Request, res: Response, next: NextFunct
         const eventId = BigInt(req.params.id);
         const event = await fetchEvent(eventId, false);
 
+        res.json(serializeBigInt(event));
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function updateEvent(req: Request, res: Response, next: NextFunction) {
+    try {
+        const eventId = BigInt(req.params.id);
+        const event = await updateEventService(eventId, req.body);
+        await logAction(req.user?.userId, `UPDATE_EVENT: ${req.body.name}`);
         res.json(serializeBigInt(event));
     } catch (err) {
         next(err);

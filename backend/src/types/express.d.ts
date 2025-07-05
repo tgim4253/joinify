@@ -5,6 +5,18 @@ declare global {
         interface Request {
             user?: AuthPayload;
         }
+        
+        interface EventForm {
+            name:               string;
+            isPublic:           boolean;
+            description?:       string;
+            location?:          string;
+            startAt?:           string;
+            endAt?:             string;
+            contactName?:       string;
+            contactPhone?:      string;
+            bannerImageUrl?:    string;
+        }
     }
 }
 

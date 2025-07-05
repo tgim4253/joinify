@@ -1,5 +1,6 @@
 import prisma from "../prisma.ts";
 import { maskString } from "../utils/mask.ts";
+import { z } from "zod";
 
 /**
  * Fetch all events from the database.
@@ -69,3 +70,38 @@ export async function fetchEvent(id: bigint, isAdmin: boolean = false) {
         fields,
     };
 }
+
+const EventFormSchema = z.object({
+    name: z.string().min(1, "name is required"),
+    isPublic: z.boolean(),
+    description: z.string().optional(),
+    location: z.string().optional(),
+    startAt: z.string().optional().refine(v => !v || !isNaN(Date.parse(v)), {
+        message: "startAt must be a valid ISO date string",
+    }),
+    endAt: z.string().optional().refine(v => !v || !isNaN(Date.parse(v)), {
+        message: "startAt must be a valid ISO date string",
+    }),
+    contactName: z.string().optional(),
+    contactPhone: z.string().optional(),
+    bannerImageUrl: z.string().url().optional(), // URL 형식 검증
+});
+
+/**
+ * update event to the database
+ * @param id - target event id
+ * @param body - body
+ */
+export async function updateEventService(id: bigint, body: Express.EventForm) {
+    const parsed = EventFormSchema.safeParse(body);
+    if (!parsed.success) {
+        throw new Error(`Validation failed: ${parsed.error.message}`);
+    }
+    const event = await prisma.event.update({
+        where: { id },
+        data: parsed.data,
+    });
+    return event;
+}
+
+
