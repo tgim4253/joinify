@@ -1,17 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../prisma.ts';
 import { logAction } from '../utils/logger.ts';
+import { serializeBigInt } from '../utils/serializeBigInt.ts';
+import { fetchEvent, fetchEvents } from '../services/eventService.ts';
 
-export async function listEvents(req: Request, res: Response, next: NextFunction) {
+export async function getEventsAdmin(req: Request, res: Response, next: NextFunction) {
     try {
-        // const isAdmin = req.user?.role === 'admin';
-        const events = await prisma.event.findMany({
-            where: true ? {} : { isPublic: true },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-        res.json(events);
+        const isAdmin = req.user?.isAdmin ?? false;
+        if(!isAdmin) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+        const events = await fetchEvents(false);
+        res.json(serializeBigInt(events));
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function getEvents(req: Request, res: Response, next: NextFunction) {
+    try {
+        const events = await fetchEvents(false);
+        res.json(serializeBigInt(events));
     } catch (err) {
         next(err);
     }
@@ -23,9 +32,31 @@ export async function createEvent(req: Request, res: Response, next: NextFunctio
             data: req.body
         });
 
-        await logAction(23, `CREATE_EVENT: ${req.body.name}`); 
+        await logAction(req.user?.userId, `CREATE_EVENT: ${req.body.name}`); 
 
         res.status(201).json(event);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function getEvent(req: Request, res: Response, next: NextFunction) {
+    try {
+        const eventId = BigInt(req.params.id);
+        const event = await fetchEvent(eventId, false);
+
+        res.json(serializeBigInt(event));
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function getEventAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+        const eventId = BigInt(req.params.id);
+        const event = await fetchEvent(eventId, false);
+
+        res.json(serializeBigInt(event));
     } catch (err) {
         next(err);
     }

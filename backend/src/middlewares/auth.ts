@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { RequestHandler } from "express-serve-static-core";
 import jwt from "jsonwebtoken";
 
 export interface AuthPayload {
-    userId: number;
+    userId: string;
     email: string;
     role: "admin" | "viewer";
 }
@@ -29,7 +28,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
         const token = extractToken(req.header("Authorization"));
         if (!token) throw new Error("Token missing");
 
-        // req.user = verifyToken(token);
+        req.user = verifyToken(token);
         return next();
     } catch (err) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -39,12 +38,22 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     if (req.user?.role !== "admin") {
+        req.user.isAdmin = true;
         return res.status(403).json({ message: "Forbidden" });
     }
     return next();
 }
 
-export const optionalAuth: RequestHandler = (req, res, next) => {
-
+export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
+    try {
+        const token = extractToken(req.header("Authorization"));
+        if (token) {
+            req.user = verifyToken(token);
+        } else {
+            req.user = undefined;
+        }
+    } catch {
+        req.user = undefined;
+    }
     return next();
 }

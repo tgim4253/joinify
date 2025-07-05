@@ -1,13 +1,13 @@
 import { NextFunction } from "express";
 import prisma from "../prisma.ts";
 
-export async function logAction(userId: number | undefined, action: string) {
+export async function logAction(userId: string | undefined, action: string) {
     if (!userId) return; // 유저 없는 경우 로깅 생략
     const payload = JSON.stringify(action);
     try {
         await prisma.log.create({
             data: {
-                userId,
+                userId: BigInt(userId),
                 action,
                 payload,
             },
