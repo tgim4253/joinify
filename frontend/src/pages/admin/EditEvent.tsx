@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react"
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { eventApi } from "../../api/event";
 import {
     Table,
@@ -15,7 +14,7 @@ import { Button } from "../../components/ui/button";
 
 const EditEvent: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // loading & error state
     const [loading, setLoading] = useState(true);

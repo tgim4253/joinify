@@ -1,15 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react"
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { eventApi } from "../../api/event";
-import {
-    Table,
-    TableHeader,
-    TableRow,
-    TableHead,
-    TableBody,
-    TableCell,
-} from "../../components/ui/table";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input.tsx";
 import { Textarea } from "../../components/ui/textarea.tsx";
@@ -28,7 +20,7 @@ export const EditEventForm = (props: ChildComponentsProps) => {
     const { event, setEvent } = props;
 
     // loading & error state
-    const [error, setError] = useState<string | null>(null);
+    // const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
 
@@ -73,7 +65,7 @@ export const EditEventForm = (props: ChildComponentsProps) => {
             setEvent((prev) => (prev ? { ...prev, ...eventFormData } as Event : prev));
             alert("이벤트가 성공적으로 수정되었습니다.");
         } catch (err: any) {
-            setError(err.message);
+            // setError(err.message);
         } finally {
             setLoading(false);
         }

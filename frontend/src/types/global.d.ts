@@ -12,6 +12,7 @@ interface LoginedData {
 interface AuthContextType {
     user:               User | null;
     ready:              boolean;
+    token:              string;
     login:              (u: User, t: string) => void;
     logout:             () => void;
 }
