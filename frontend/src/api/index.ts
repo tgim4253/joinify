@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 async function fetchWrapper<T>(
     url: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
@@ -5,7 +8,6 @@ async function fetchWrapper<T>(
     headers: HeadersInit = {},
     useToken: boolean = false
 ): Promise<T> {
-
     if (useToken) {
         const saved = localStorage.getItem("auth") || "{}";
         const token = JSON.parse(saved).token;
@@ -35,6 +37,10 @@ async function fetchWrapper<T>(
     const response = await fetch(fetchUrl, config);
 
     if (!response.ok) {
+        const { logout } = useContext(AuthContext);
+        if(response.status == 401) {
+            logout();
+        }
         let message = "Something went wrong";
         try {
             const errorData = await response.json();

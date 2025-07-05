@@ -32,6 +32,18 @@ interface Event {
     createdAt:          string;
 }
 
+interface EventForm {
+    name:               string;
+    isPublic:           boolean;
+    description?:       string;
+    location?:          string;
+    startAt?:           string;
+    endAt?:             string;
+    contactName?:       string;
+    contactPhone?:      string;
+    bannerImageUrl?:    string;
+}
+
 interface EventField {
     id:                 bigint | number;
     eventId:            bigint | number;
