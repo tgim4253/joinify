@@ -5,6 +5,7 @@ services:
     command: npm run dev
     volumes:
       - ./backend:/app
+      - /app/node_modules
     ports:
       - "4000:4000"               # localhost:4000 → 컨테이너
     environment:
