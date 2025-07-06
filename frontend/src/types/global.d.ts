@@ -48,8 +48,15 @@ interface EventForm {
 interface EventField {
     id:                 bigint | number;
     eventId:            bigint | number;
+    
+}
+
+interface EventFieldData {
     fieldKey:           string;
-    fieldType:          string;
+    displayName:        string;
+    dataType:           string;
+    enumOptions:        EnumOptionData;
+    defaultValue:       string;
     isSensitive:        boolean;
     maskFrom?:          number;
     maskTo?:            number;
@@ -58,6 +65,10 @@ interface EventField {
     isMutable:          boolean;
     isPublic:           boolean;
     useForMatching:     boolean;
+}
+
+interface EnumOptionData {
+    [key: string]:      string
 }
 
 interface EventMember {
