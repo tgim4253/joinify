@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { eventApi } from "../../api/event";
 import {
     Table,
     TableHeader,
@@ -11,8 +10,12 @@ import {
 } from "../../components/ui/table";
 import {EditEventForm} from "../../components/admin/EditEventForm";
 import { Button } from "../../components/ui/button";
+import { useEventApi } from "../../lib/hooks/useEventApi";
+import CSVUpload from "../../components/admin/CSVUpload";
+
 
 const EditEvent: React.FC = () => {
+    const eventApi = useEventApi();
     const { id } = useParams<{ id: string }>();
     // const navigate = useNavigate();
 
@@ -72,6 +75,7 @@ const EditEvent: React.FC = () => {
             {showEditForm && (
                 <EditEventForm setEvent={setEvent} event={event} />
             )}
+            <CSVUpload />
             {/* Members Table */}
             {members.length > 0 && (
                 <div className="space-y-2">

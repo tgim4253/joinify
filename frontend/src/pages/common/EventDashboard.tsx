@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { eventApi } from "../../api/event";
 import {
   Table,
   TableHeader,
@@ -10,8 +9,11 @@ import {
   TableCell,
 } from "../../components/ui/table";
 import { Card, CardContent } from "../../components/ui/card";
+import { useEventApi } from "../../lib/hooks/useEventApi";
 
 const EventDashboard: React.FC = () => {
+  const eventApi = useEventApi();
+
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,29 +53,29 @@ const EventDashboard: React.FC = () => {
     <div className="p-4 space-y-4">
       {members.length > 0 && (
         <div>
-            <h3 className="text-xl font-semibold">{event.name}</h3>
-            <Table className="min-w-full border rounded-lg">
-              <TableHeader>
-                <TableRow>
+          <h3 className="text-xl font-semibold">{event.name}</h3>
+          <Table className="min-w-full border rounded-lg">
+            <TableHeader>
+              <TableRow>
+                {fields.map((field, index) => (
+                  <TableHead key={index}>{field.fieldKey}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
                   {fields.map((field, index) => (
-                    <TableHead key={index}>{field.fieldKey}</TableHead>
+                    <TableCell key={index}>
+                      {member.data && field.fieldKey in member.data
+                        ? String(member.data[field.fieldKey])
+                        : "-"}
+                    </TableCell>
                   ))}
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {members.map((member) => (
-                  <TableRow key={member.id}>
-                    {fields.map((field, index) => (
-                      <TableCell key={index}>
-                        {member.data && field.fieldKey in member.data
-                          ? String(member.data[field.fieldKey])
-                          : "-"}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

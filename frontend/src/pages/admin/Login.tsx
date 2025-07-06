@@ -2,9 +2,10 @@ import { useState, useContext } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { authApi } from "../../api/auth";
+import { useAuthApi } from "../../lib/hooks/useAuthApi";
 
 export default function Login() {
+    const authApi = useAuthApi();
     // login 함수
     const { login } = useContext(AuthContext);
     // 이메일 입력값을 담는 State, 초기값은 빈 문자열

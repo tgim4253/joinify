@@ -27,4 +27,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-export { Button };
+const DropdownButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = "default", ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          // Remove bottom border radius, keep only top
+          "inline-flex items-center justify-center whitespace-nowrap rounded-t-md rounded-b-none px-4 py-2 text-sm font-medium transition focus:outline-none",
+          variant === "default"
+            ? "bg-gray-500 text-white hover:bg-gray-700"
+            : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+DropdownButton.displayName = "DropdownButton";
+
+export { Button, DropdownButton };

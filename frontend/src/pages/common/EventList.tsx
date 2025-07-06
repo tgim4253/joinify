@@ -11,11 +11,12 @@ import {
 } from "../../components/ui/table";
 import { ArrowUpDown, LayoutGrid, Rows } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { eventApi } from "../../api/event";
+import { useEventApi } from "../../lib/hooks/useEventApi";
 
 
 
 const EventList: React.FC = () => {
+    const eventApi = useEventApi();
     // Component state
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);

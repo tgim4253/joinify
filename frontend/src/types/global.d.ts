@@ -70,3 +70,9 @@ interface EventMember {
 interface MemberData {
     [key: string]:      any;
 }
+
+interface CSVUploadResponse {
+    data:               string[]
+    members:            EventMember[];  
+    oldFields:             EventField[];
+}

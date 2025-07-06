@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react"
 import { useParams } from "react-router-dom";
-import { eventApi } from "../../api/event";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input.tsx";
 import { Textarea } from "../../components/ui/textarea.tsx";
 import { Switch } from "../../components/ui/switch.tsx";
 import { Button } from "../../components/ui/button";
 import { MoonLoaderSpinner } from "../ui/loader.tsx";
+import { useEventApi } from "../../lib/hooks/useEventApi.ts";
 
 
 type ChildComponentsProps = {
@@ -15,6 +15,8 @@ type ChildComponentsProps = {
     event: Event;
 }
 export const EditEventForm = (props: ChildComponentsProps) => {
+    const eventApi = useEventApi();
+    
     const { id } = useParams<{ id: string }>();
 
     const { event, setEvent } = props;

@@ -1,12 +1,10 @@
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-
 async function fetchWrapper<T>(
     url: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
     body: object | null = null,
     headers: HeadersInit = {},
-    useToken: boolean = false
+    useToken: boolean = false,
+    logout?: () => void
 ): Promise<T> {
     if (useToken) {
         const saved = localStorage.getItem("auth") || "{}";
@@ -20,26 +18,27 @@ async function fetchWrapper<T>(
         }
     }
 
+    const isFormData = body instanceof FormData;
 
     const config: RequestInit = {
         method,
-        headers: {
-            "Content-Type": "application/json",
-            ...headers,
-        },
+        headers: isFormData
+        ? { ...headers }
+        : { "Content-Type": "application/json", ...headers },
+        body: body
+        ? isFormData
+            ? (body as FormData)
+            : JSON.stringify(body)
+        : undefined,
     };
-
-    if (body) {
-        config.body = JSON.stringify(body);
-    }
 
     const fetchUrl = `${import.meta.env.VITE_API_BASE}${url}`
     const response = await fetch(fetchUrl, config);
 
     if (!response.ok) {
-        const { logout } = useContext(AuthContext);
         if(response.status == 401) {
-            logout();
+            if(logout)
+                logout();
         }
         let message = "Something went wrong";
         try {
@@ -53,12 +52,12 @@ async function fetchWrapper<T>(
 }
 
 export const api = {
-    get: <T>(url: string, headers?: HeadersInit, useToken: boolean = false) =>
-        fetchWrapper<T>(url, "GET", null, headers, useToken),
-    post: <T>(url: string, body: object, headers?: HeadersInit, useToken: boolean = false) =>
-        fetchWrapper<T>(url, "POST", body, headers, useToken),
-    put: <T>(url: string, body: object, headers?: HeadersInit, useToken: boolean = false) =>
-        fetchWrapper<T>(url, "PUT", body, headers, useToken),
-    delete: <T>(url: string, headers?: HeadersInit, useToken: boolean = false) =>
-        fetchWrapper<T>(url, "DELETE", null, headers, useToken),
+    get: <T>(url: string, headers?: HeadersInit, useToken: boolean = false, logout?: () => void) =>
+        fetchWrapper<T>(url, "GET", null, headers, useToken, logout),
+    post: <T>(url: string, body: object, headers?: HeadersInit, useToken: boolean = false, logout?: () => void) =>
+        fetchWrapper<T>(url, "POST", body, headers, useToken, logout),
+    put: <T>(url: string, body: object, headers?: HeadersInit, useToken: boolean = false, logout?: () => void) =>
+        fetchWrapper<T>(url, "PUT", body, headers, useToken, logout),
+    delete: <T>(url: string, headers?: HeadersInit, useToken: boolean = false, logout?: () => void) =>
+        fetchWrapper<T>(url, "DELETE", null, headers, useToken, logout),
 };
