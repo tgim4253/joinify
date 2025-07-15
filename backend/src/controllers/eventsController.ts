@@ -4,7 +4,7 @@ import { logAction } from '../utils/logger.ts';
 import { serializeBigInt } from '../utils/serializeBigInt.ts';
 import { fetchEvent, fetchEvents, updateEventService } from '../services/eventService.ts';
 import { csvParser } from '../services/fileService.ts';
-import { fetchFields } from '../services/fieldService.ts';
+import { fetchFields, upsertFields } from '../services/fieldService.ts';
 
 
 export async function getEventsAdmin(req: Request, res: Response, next: NextFunction) {
@@ -94,6 +94,34 @@ export async function uploadCsv(req: Request, res: Response, next: NextFunction)
             members,
             oldFields: serializeBigInt(oldFields)
         })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function uploadCSVFieldData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const eventId = BigInt(req.params.id);
+        const { fields } = req.body;
+
+        if (!Array.isArray(fields)) {
+            return res.status(400).json({ message: "Invalid fields data" });
+        }
+
+        const _ = await upsertFields(eventId, fields);
+        const allFields = await fetchFields(eventId);
+
+        await logAction(req.user?.userId, `UPDATE_EVENT_FIELDS: ${eventId}`);
+        res.status(200).json(serializeBigInt(allFields));
+    } catch (err) {
+        next(err);
+    }
+}
+export async function getEventFields(req: Request, res: Response, next: NextFunction) {
+    try {
+        const eventId = BigInt(req.params.id);
+        const fields = await fetchFields(eventId);
+        res.json(serializeBigInt(fields));
     } catch (err) {
         next(err);
     }

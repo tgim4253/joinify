@@ -18,6 +18,21 @@ declare global {
             contactPhone?:      string;
             bannerImageUrl?:    string;
         }
+
+        interface EventFieldData {
+            fieldKey:           string;
+            displayName:        string;
+            dataType:           string;
+            enumOptions:        EnumOptionData[];
+            isSensitive:        boolean;
+            isDeleted:          boolean;
+            maskFrom?:          number;
+            maskTo?:            number;
+            order:              number;
+            isMutable:          boolean;
+            isPublic:           boolean;
+            useForMatching:     boolean;
+        }
     }
 }
 

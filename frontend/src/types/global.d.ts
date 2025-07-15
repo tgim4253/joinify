@@ -1,5 +1,8 @@
+type ID = BigInt | number | string;
+
+
 interface User {
-    userId:             string;
+    userId:             ID;
     email:              string;
     role:               "admin" | "viewr";
 }
@@ -18,7 +21,7 @@ interface AuthContextType {
 }
 
 interface Event {   
-    id:                 bigint | number;
+    id:                 ID;
     name:               string;
     isPublic:           boolean;
     fields?:            EventField[];
@@ -45,34 +48,34 @@ interface EventForm {
     bannerImageUrl?:    string;
 }
 
-interface EventField {
-    id:                 bigint | number;
-    eventId:            bigint | number;
-    
+interface EventField extends EventFieldData {
+    id:                 ID;
+    eventId:            ID;
+    createdAt:          string;
 }
 
 interface EventFieldData {
     fieldKey:           string;
     displayName:        string;
     dataType:           string;
-    enumOptions:        EnumOptionData;
-    defaultValue:       string;
+    enumOptions:        EnumOptionData[];
     isSensitive:        boolean;
     maskFrom?:          number;
     maskTo?:            number;
-    createdAt:          string;
     order:              number;
     isMutable:          boolean;
     isPublic:           boolean;
+    isDeleted:          boolean;
     useForMatching:     boolean;
 }
 
 interface EnumOptionData {
-    [key: string]:      string
+    name:        string;
+    color:       string;
 }
 
 interface EventMember {
-    id:                 bigint | number;
+    id:                 ID;
     eventId:            bigint | number;
     data:               MemberData;
     createdAt:          string;
@@ -86,4 +89,10 @@ interface CSVUploadResponse {
     data:               string[]
     members:            EventMember[];  
     oldFields:             EventField[];
+}
+
+interface CSVFieldProps {
+    fieldVal: EventFieldData;
+    index: number;
+    setFieldVal: React.Dispatch<React.SetStateAction<EventFieldData[]>>;
 }

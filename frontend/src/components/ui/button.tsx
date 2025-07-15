@@ -47,4 +47,23 @@ const DropdownButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 DropdownButton.displayName = "DropdownButton";
 
-export { Button, DropdownButton };
+const ListButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = "default", ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          // Remove bottom border radius, keep only top
+          "w-full inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-sm font-medium transition focus:outline-none ",
+          variant === "default"
+            ? "bg-white text-black hover:bg-gray-300"
+            : "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+
+export { Button, DropdownButton, ListButton};

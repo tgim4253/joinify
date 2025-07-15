@@ -15,11 +15,16 @@ export function useEventApi() {
         ()                          => api.get<Event[]>("/admin/event/list", {}, true),
     getAdminEvent:      
         (id: string)                => api.get<Event>(`/admin/event/${id}`, {}, true),
+    getEventFields:
+        (id: string)                => api.get<EventField[]>(`/admin/event/${id}/fields`, {}, true),
     updateAdminEvent: 
         (id: string, body: object)  => api.put<Event>(`/admin/event/${id}`, body, {}, true),
 
     uploadCsv: 
         (body: FormData) => 
             api.post<CSVUploadResponse>(`/admin/event/upload`, body, {}, true),
+    updateEventFields:
+        (eventId: string, body: EventFieldData[]) =>
+            api.put<EventField[]>(`/admin/event/update/${eventId}/fields`, { fields: body }, {}, true),
   };
 }

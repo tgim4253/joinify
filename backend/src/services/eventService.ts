@@ -30,7 +30,7 @@ export async function fetchEvent(id: bigint, isAdmin: boolean = false) {
     if (!event) {
         throw new Error('Event not found');
     }
-    const fields = event.fields.filter((f) => isAdmin || f.isPublic);
+    const fields = event.fields.filter((f) => !f.isDeleted && (isAdmin || f.isPublic));
     type MemberData = { [key: string]: any };
 
     const members = event.members.map((m) => ({

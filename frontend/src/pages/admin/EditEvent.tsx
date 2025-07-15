@@ -11,7 +11,10 @@ import {
 import {EditEventForm} from "../../components/admin/EditEventForm";
 import { Button } from "../../components/ui/button";
 import { useEventApi } from "../../lib/hooks/useEventApi";
-import CSVUpload from "../../components/admin/CSVUpload";
+import CSVUpload from "../../components/admin/CSV/CSVUpload";
+import EditFields from "../../components/admin/EditFileds";
+import MemberList from "../../components/common/MemberList";
+import EditMemberList from "../../components/admin/EditMemberList";
 
 
 const EditEvent: React.FC = () => {
@@ -25,10 +28,14 @@ const EditEvent: React.FC = () => {
 
     // event detail
     const [event, setEvent] = useState<Event | null>(null);
+    const [eventFields, setEventFields] = useState<EventFieldData[]>([]);
 
     // show event edit form
     const [showEditForm, setShowEditForm] = useState(false);
 
+    const setSortByOrder = (prev: EventFieldData[]) => {
+        return prev.sort((a, b) => a.order - b.order);
+    }
 
     // fetch event data once component mounts
     useEffect(() => {
@@ -43,6 +50,8 @@ const EditEvent: React.FC = () => {
             try {
                 const data = await eventApi.getAdminEvent(id);
                 setEvent(data);
+                const fieldsData = await eventApi.getEventFields(id);
+                setEventFields(setSortByOrder(fieldsData));
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -76,33 +85,10 @@ const EditEvent: React.FC = () => {
                 <EditEventForm setEvent={setEvent} event={event} />
             )}
             <CSVUpload />
+            <EditFields fieldVals={eventFields} setFieldVals={setEventFields}/>
             {/* Members Table */}
             {members.length > 0 && (
-                <div className="space-y-2">
-                    <h3 className="text-xl font-semibold">참여자 목록</h3>
-                    <Table className="min-w-full border rounded-lg">
-                        <TableHeader>
-                            <TableRow>
-                                {fields.map((field) => (
-                                    <TableHead key={field.id}>{field.fieldKey}</TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {members.map((member) => (
-                                <TableRow key={member.id}>
-                                    {fields.map((field) => (
-                                        <TableCell key={field.id}>
-                                            {member.data && field.fieldKey in member.data
-                                                ? String(member.data[field.fieldKey])
-                                                : "-"}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                <EditMemberList fields={fields} members={members} />
             )}
         </div>
     );

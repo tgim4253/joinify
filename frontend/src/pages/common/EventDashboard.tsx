@@ -46,7 +46,7 @@ const EventDashboard: React.FC = () => {
   const fields = event.fields || [];
 
   //order가 작을수록 앞에
-  fields.sort((a, b) => a.order - b.order);
+  fields.sort((a, b) => b.order - a.order);
   const members = event.members || [];
 
   return (

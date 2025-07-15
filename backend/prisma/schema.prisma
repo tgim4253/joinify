@@ -57,6 +57,7 @@ model EventField {
   order        Int     @default(9999)
   isMutable    Boolean @default(true) @map("is_mutable")
   useForMatching Boolean @default(false) @map("use_for_matching")
+  isDeleted    Boolean @default(false) @map("is_deleted")
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 

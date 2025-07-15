@@ -10,6 +10,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json()); // json형태의 요청 body를 파싱하는 미들웨어
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next(); // Pass control to the next handler
+});
+
 
 app.use("/api/admin", adminRouter);
 app.use("/api/public", publicRouter)
